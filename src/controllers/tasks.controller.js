@@ -3,7 +3,7 @@ import { pool } from "../db.js";
 export const getAllTask = async (req, res) => {
   console.log("user:",req.userId)
    const [result] = await pool.query(
-    "SELECT * FROM tasks order by createAt ASC"
+    "SELECT * FROM tasks where user_id = ? order by createAt ASC", [req.userId]
   );
   return res.json(result);
   /* try {
@@ -31,17 +31,23 @@ export const getTask = async (req, res) => {
   }
 };
 
-export const createTask = async (req, res) => {
+export const createTask = async (req, res, next) => {
   try {
     const { title, description } = req.body;
     const [result] = await pool.query(
-      "INSERT INTO tasks (title, description) VALUES (?, ?)",
-      [title, description]
+      "INSERT INTO tasks (title, description, user_id) VALUES (?, ?, ?)",
+      [title, description, req.userId]
     );
-    res.json({ id: result.insertId, title, description });
+    const [insertedTask] = await pool.query(
+      "SELECT * FROM tasks WHERE id = ?",
+      [result.insertId]
+    );
+    /* res.json({ id: result.insertId, title, description, user_id:result[0].user_id}); */
+    res.json(insertedTask[0])
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
+  next(error);
 };
 
 export const updateTask = async (req, res) => {

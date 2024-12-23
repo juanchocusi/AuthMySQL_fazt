@@ -1,5 +1,6 @@
 
 
+ALTER TABLE tasks ADD COLUMN user_id INTEGER REFERENCES users(id)
 
 
 create table users(
@@ -10,3 +11,6 @@ create table users(
     created_at timestamp default current_timestamp,
     updated_at timestamp default current_timestamp
 )
+
+ALTER TABLE users ADD COLUMN grvatar VARCHAR(255)
+
